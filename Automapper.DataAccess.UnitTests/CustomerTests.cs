@@ -14,7 +14,10 @@ namespace Automapper.DataAccess.UnitTests
         public void Projection_As_It_Is()
         {
             // Arrange
-            Mapper.Initialize(cfg => cfg.CreateMap<Customer, CustomerDto>());
+            var mapperConfig = new MapperConfiguration(cfg =>
+            {
+                cfg.CreateMap<Customer, CustomerDto>();
+            });
 
             var customers = Enumerable.Range(1, 10).Select(x => new Customer
             {
@@ -24,7 +27,7 @@ namespace Automapper.DataAccess.UnitTests
             }).AsQueryable();
 
             // Act
-            var customerDto = customers.ProjectTo<CustomerDto>().First();
+            var customerDto = customers.ProjectTo<CustomerDto>(mapperConfig).First();
 
             // Assert
             Assert.IsNotNull(customerDto);
@@ -36,8 +39,12 @@ namespace Automapper.DataAccess.UnitTests
         public void Projection_With_Ignored_Properties()
         {
             // Arrange (Projection can be done only for "IQueryable" interfaces
-            Mapper.Initialize(cfg =>
-                cfg.CreateMap<Customer, CustomerDto>().ForMember(y => y.Email, z => z.Ignore()));
+            var mapperConfig = new MapperConfiguration(cfg =>
+            {
+                cfg.CreateMap<Customer, CustomerDto>().ForMember(prop => prop.Email, opt => opt.Ignore());
+            });
+            //Mapper.Initialize(cfg =>
+            //    cfg.CreateMap<Customer, CustomerDto>().ForMember(y => y.Email, z => z.Ignore()));
 
             var customers = Enumerable.Range(1, 10).Select(x => new Customer
             {
@@ -47,7 +54,7 @@ namespace Automapper.DataAccess.UnitTests
             }).AsQueryable();
 
             // Act
-            var customerDto = customers.ProjectTo<CustomerDto>().First();
+            var customerDto = customers.ProjectTo<CustomerDto>(mapperConfig).First();
 
             // Assert
             Assert.IsNotNull(customerDto);
@@ -57,37 +64,52 @@ namespace Automapper.DataAccess.UnitTests
 
         [TestMethod]
         [ExpectedException(typeof(AutoMapperConfigurationException))]
-        public void CheckForConfiguration_When_There_Is_No_Configuration()
+        public void CheckForConfiguration_When_They_Cannot_be_Mapped_With_Default_Conventions()
         {
             // Arrange
-            Mapper.Initialize(cfg => cfg.CreateMap<Customer, CustomerDtoWithUniqueToken>());
+            var mapperConfig = new MapperConfiguration(cfg =>
+            {
+                cfg.CreateMap<Customer, CustomerDtoWithUniqueToken>();
+            });
+            //Mapper.Initialize(cfg => cfg.CreateMap<Customer, CustomerDtoWithUniqueToken>());
             
             // Act (there's no act in here)
 
             // Assert
-            Mapper.AssertConfigurationIsValid();
+            mapperConfig.AssertConfigurationIsValid();
         }
 
         [TestMethod]
-        public void CheckForConfiguration_When_There_Is_a_Valid_Configuration()
+        public void CheckForConfiguration_When_They_Can_Be_Mapped_With_Default_Conventions()
         {
             // Arrange
-            Mapper.Initialize(cfg =>
+            var mapperConfig = new MapperConfiguration(cfg =>
+            {
                 cfg.CreateMap<Customer, CustomerDtoWithUniqueToken>()
-                    .ForMember(x => x.UniqueToken, expression => expression.MapFrom(cust => $"{cust.Id}_{cust.Email}")));
+                    .ForMember(prop => prop.UniqueToken, expression => expression.MapFrom(cust => $"{cust.Id}_{cust.Email}"));
+            });
+            //Mapper.Initialize(cfg =>
+            //    cfg.CreateMap<Customer, CustomerDtoWithUniqueToken>()
+            //        .ForMember(x => x.UniqueToken, expression => expression.MapFrom(cust => $"{cust.Id}_{cust.Email}")));
 
             // Act (there's no act in here)
 
             // Assert
-            Mapper.AssertConfigurationIsValid();
+            mapperConfig.AssertConfigurationIsValid();
         }
 
         [TestMethod]
         public void ConversionValidation_When_Properties_Does_Not_Match_At_All()
         {
             // Arrange
-            Mapper.Initialize(cfg=>
-            cfg.CreateMap<Customer, CustomerDtoWhichIsNothingLikeACustomer>().ConvertUsing(new CustomerConversion()));
+            var mapperConfig = new MapperConfiguration(cfg =>
+            {
+                cfg.CreateMap<Customer, CustomerDtoWhichIsNothingLikeACustomer>()
+                .ConvertUsing(new CustomerConversion());
+            });
+            var mapper = mapperConfig.CreateMapper();
+            //Mapper.Initialize(cfg=>
+            //cfg.CreateMap<Customer, CustomerDtoWhichIsNothingLikeACustomer>().ConvertUsing(new CustomerConversion()));
 
             var customer = new Customer
             {
@@ -98,7 +120,7 @@ namespace Automapper.DataAccess.UnitTests
             };
 
             // Act
-            var dto = Mapper.Map<Customer, CustomerDtoWhichIsNothingLikeACustomer>(customer);
+            var dto = mapper.Map<Customer, CustomerDtoWhichIsNothingLikeACustomer>(customer);
 
             // Assert
             Assert.IsNotNull(dto);
@@ -110,9 +132,16 @@ namespace Automapper.DataAccess.UnitTests
         public void ValueResolver()
         {
             // Arrange
-            Mapper.Initialize(cfg=>
-            cfg.CreateMap<Invoice, InvoiceDto>().ForMember(x=>x.Total, opt=>opt.ResolveUsing<InvoiceResolver>())
-            );
+            var mapperConfig = new MapperConfiguration(cfg =>
+            {
+                cfg.CreateMap<Invoice, InvoiceDto>()
+                    .ForMember(prop => prop.Total, opt => opt.ResolveUsing<InvoiceResolver>());
+            });
+            var mapper = mapperConfig.CreateMapper();
+
+            //Mapper.Initialize(cfg=>
+            //cfg.CreateMap<Invoice, InvoiceDto>().ForMember(x=>x.Total, opt=>opt.ResolveUsing<InvoiceResolver>())
+            //);
 
             var invoice = new Invoice
             {
@@ -121,7 +150,7 @@ namespace Automapper.DataAccess.UnitTests
             };
 
             // Act
-            var dto = Mapper.Map<Invoice, InvoiceDto>(invoice);
+            var dto = mapper.Map<Invoice, InvoiceDto>(invoice);
 
             // Assert
             Assert.IsNotNull(dto);
@@ -133,13 +162,17 @@ namespace Automapper.DataAccess.UnitTests
         public void NullSubstitution()
         {
             // Arrange
-            Mapper.Initialize(cfg=>
-            cfg.CreateMap<Customer, CustomerDto>().ForMember(x=>x.Email, opt=>opt.NullSubstitute("xxx@blah.com")));
+            var mapperConfig = new MapperConfiguration(cfg =>
+            {
+                cfg.CreateMap<Customer, CustomerDto>()
+                    .ForMember(prop => prop.Email, opt => opt.NullSubstitute("xxx@blah.com"));
+            });
+            var mapper = mapperConfig.CreateMapper();
 
             var customer = new Customer();
 
             // Act
-            var dto = Mapper.Map<Customer, CustomerDto>(customer);
+            var dto = mapper.Map<Customer, CustomerDto>(customer);
 
             // Assert
             Assert.IsNotNull(dto);
