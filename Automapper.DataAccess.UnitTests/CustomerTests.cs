@@ -43,8 +43,6 @@ namespace Automapper.DataAccess.UnitTests
             {
                 cfg.CreateMap<Customer, CustomerDto>().ForMember(prop => prop.Email, opt => opt.Ignore());
             });
-            //Mapper.Initialize(cfg =>
-            //    cfg.CreateMap<Customer, CustomerDto>().ForMember(y => y.Email, z => z.Ignore()));
 
             var customers = Enumerable.Range(1, 10).Select(x => new Customer
             {
@@ -71,7 +69,6 @@ namespace Automapper.DataAccess.UnitTests
             {
                 cfg.CreateMap<Customer, CustomerDtoWithUniqueToken>();
             });
-            //Mapper.Initialize(cfg => cfg.CreateMap<Customer, CustomerDtoWithUniqueToken>());
             
             // Act (there's no act in here)
 
@@ -88,9 +85,6 @@ namespace Automapper.DataAccess.UnitTests
                 cfg.CreateMap<Customer, CustomerDtoWithUniqueToken>()
                     .ForMember(prop => prop.UniqueToken, expression => expression.MapFrom(cust => $"{cust.Id}_{cust.Email}"));
             });
-            //Mapper.Initialize(cfg =>
-            //    cfg.CreateMap<Customer, CustomerDtoWithUniqueToken>()
-            //        .ForMember(x => x.UniqueToken, expression => expression.MapFrom(cust => $"{cust.Id}_{cust.Email}")));
 
             // Act (there's no act in here)
 
@@ -108,8 +102,6 @@ namespace Automapper.DataAccess.UnitTests
                 .ConvertUsing(new CustomerConversion());
             });
             var mapper = mapperConfig.CreateMapper();
-            //Mapper.Initialize(cfg=>
-            //cfg.CreateMap<Customer, CustomerDtoWhichIsNothingLikeACustomer>().ConvertUsing(new CustomerConversion()));
 
             var customer = new Customer
             {
@@ -138,10 +130,6 @@ namespace Automapper.DataAccess.UnitTests
                     .ForMember(prop => prop.Total, opt => opt.ResolveUsing<InvoiceResolver>());
             });
             var mapper = mapperConfig.CreateMapper();
-
-            //Mapper.Initialize(cfg=>
-            //cfg.CreateMap<Invoice, InvoiceDto>().ForMember(x=>x.Total, opt=>opt.ResolveUsing<InvoiceResolver>())
-            //);
 
             var invoice = new Invoice
             {
