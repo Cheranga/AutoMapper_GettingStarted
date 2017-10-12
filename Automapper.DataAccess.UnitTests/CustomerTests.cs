@@ -177,13 +177,12 @@ namespace Automapper.DataAccess.UnitTests
                 cfg.RecognizeAlias("_", "C_"); //cfg.RecognizePrefixes("_");
                 cfg.SourceMemberNamingConvention = new RemoveUnderscoreConvention();
 
-                cfg.CreateMap<WeirdCustomer, WeirdCustomerDto>();
-                cfg.CreateMap<WeirdLocation, WeirdLocationDto>();
+                RegisterMappings(cfg);
             });
 
             var mapper = sourceToDestinationConfig.CreateMapper();
 
-            var crazyCustomer = new WeirdCustomer
+            var weirdCustomer = new WeirdCustomer
             {
                 _Id = 1,
                 _Name = "Cheranga",
@@ -202,9 +201,14 @@ namespace Automapper.DataAccess.UnitTests
 
             sourceToDestinationConfig.AssertConfigurationIsValid();
 
-            var dto = mapper.Map<WeirdCustomer, WeirdCustomerDto>(crazyCustomer);
-            //var cust = mapper.Map<CrazyCustomerDto, CrazyCustomer>(dto);
+            var dto = mapper.Map<WeirdCustomer, WeirdCustomerDto>(weirdCustomer);
+            Assert.IsNotNull(dto);
+        }
 
+        private void RegisterMappings(IMapperConfigurationExpression cfg)
+        {
+            cfg.CreateMap<WeirdCustomer, WeirdCustomerDto>();
+            cfg.CreateMap<WeirdLocation, WeirdLocationDto>();
         }
     }
 }
