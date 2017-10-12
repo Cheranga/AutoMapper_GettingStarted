@@ -1,5 +1,7 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Automapper.DataAccess.UnitTests.Dto;
+using Automapper.DataAccess.UnitTests.Mappers;
 using AutoMapper;
 using AutoMapper.DataAccess;
 using AutoMapper.QueryableExtensions;
@@ -165,6 +167,44 @@ namespace Automapper.DataAccess.UnitTests
             // Assert
             Assert.IsNotNull(dto);
             Assert.AreEqual("xxx@blah.com", dto.Email);
+        }
+
+        [TestMethod]
+        public void Test()
+        {
+            var sourceToDestinationConfig = new MapperConfiguration(cfg =>
+            {
+                cfg.RecognizeAlias("_", "C_"); //cfg.RecognizePrefixes("_");
+                cfg.SourceMemberNamingConvention = new RemoveUnderscoreConvention();
+
+                cfg.CreateMap<WeirdCustomer, WeirdCustomerDto>();
+                cfg.CreateMap<WeirdLocation, WeirdLocationDto>();
+            });
+
+            var mapper = sourceToDestinationConfig.CreateMapper();
+
+            var crazyCustomer = new WeirdCustomer
+            {
+                _Id = 1,
+                _Name = "Cheranga",
+                Address = "Walhalla",
+                Num_Of_Cars = 2,
+                Blah_Blah_Blah_Blah_Blah = 10,
+                Location = new WeirdLocation
+                {
+                    _Id = 2,
+                    _Name = "Hatangala",
+                    Address = "Vesteros",
+                    Num_Of_Cars = 100,
+                    Blah_Blah_Blah_Blah_Blah = 100,
+                }
+            };
+
+            sourceToDestinationConfig.AssertConfigurationIsValid();
+
+            var dto = mapper.Map<WeirdCustomer, WeirdCustomerDto>(crazyCustomer);
+            //var cust = mapper.Map<CrazyCustomerDto, CrazyCustomer>(dto);
+
         }
     }
 }

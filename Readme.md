@@ -10,6 +10,8 @@ the preferred way to use AutoMapper is to use the instance API and to avoid usin
 - [x] Custom Conversion
 - [x] Value Resolver
 - [x] Null Substitution
+- [x] Nested properties with different property name conventions
+   - Had to create a custom naming convetion implementing *`INamingConvention`*, and had to use *`RecognizeAlias`*
 
 ### How to use in an enterprise level application
 - [ ] The main configuration must not be changed whenever there are changes to conversions

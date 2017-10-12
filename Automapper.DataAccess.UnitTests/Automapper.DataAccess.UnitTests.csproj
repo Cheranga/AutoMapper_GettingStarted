@@ -55,7 +55,16 @@
   </Choose>
   <ItemGroup>
     <Compile Include="CustomerTests.cs" />
+    <Compile Include="Mappers\CustomerConversion.cs" />
     <Compile Include="Dto\CustomerDto.cs" />
+    <Compile Include="Dto\CustomerDtoWhichIsNothingLikeACustomer.cs" />
+    <Compile Include="Dto\CustomerDtoWithUniqueToken.cs" />
+    <Compile Include="Dto\InvoiceDto.cs" />
+    <Compile Include="Mappers\InvoiceResolver.cs" />
+    <Compile Include="Mappers\RemoveUnderscoreConvention.cs" />
+    <Compile Include="Dto\StudentDto.cs" />
+    <Compile Include="Dto\WeirdCustomerDto.cs" />
+    <Compile Include="Dto\WeirdLocationDto.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -67,6 +76,7 @@
       <Name>AutoMapper.DataAccess</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>
